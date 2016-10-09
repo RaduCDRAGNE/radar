@@ -61,7 +61,10 @@ class BaseLayerGroup {
         this.innerLayer.resetStyle(this.lastTarget);
     }
 
-    clickFeature(e) {}
+    clickFeature(e) {
+        let url = this.getRegionChartUrl(this.lastTarget.feature);
+        window.open(url,'_blank');
+    }
 
     setData(data) {
         let myOnEachFeature = (feature, layer) => {
@@ -178,6 +181,10 @@ class DemographicsLayer extends BaseLayerGroup {
             clearInterval(this.animationInterval);
         }
     }
+
+    getRegionChartUrl(feature){
+        return "http://193.230.8.27:10081/app/kibana#/visualize/edit/Top-judete-ca-populatie-dupa-ani?_g=(filters:!(),refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-15m,mode:quick,to:now))&_a=(filters:!(('$state':(store:appState),meta:(alias:!n,apply:!t,disabled:!f,index:radar-population,key:siruta,negate:!f,value:'" + feature.properties.siruta + "'),query:(match:(siruta:(query:" + feature.properties.siruta + ",type:phrase))))),linked:!f,query:(query_string:(analyze_wildcard:!t,query:'*')),uiState:(),vis:(aggs:!((id:'1',params:(field:population),schema:metric,type:sum),(id:'2',params:(field:year,order:asc,orderBy:_term,size:26),schema:segment,type:terms),(id:'3',params:(field:siruta,order:desc,orderBy:'1',size:5),schema:group,type:terms)),listeners:(),params:(addLegend:!t,addTimeMarker:!f,addTooltip:!t,defaultYExtents:!t,mode:stacked,scale:linear,setYExtents:!f,shareYAxis:!t,times:!(),yAxis:(max:23500000,min:22000000)),title:'Top%20judete%20ca%20populatie%20dupa%20ani',type:histogram))";
+    }
 }
 
 var demographics_layer = new DemographicsLayer();
@@ -222,6 +229,7 @@ $.getJSON("data/ro_uat_poligon_small.json", function (data) {
             if (sirutaPopMap[siruta]) {
                 for (let popEntry of sirutaPopMap[siruta]) {
                     feature.properties["pop" + popEntry.Year] = popEntry.Population;
+                    feature.properties['siruta'] = siruta;
                 }
             } else {
                 console.log("Missing siruta info for ", feature);
